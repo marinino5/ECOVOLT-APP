@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import me.mariana.nino.proyecto_ecovoltapp.navigation.AppNavigation
+import me.mariana.nino.proyecto_ecovoltapp.navigation.EcovoltNavigation
 import me.mariana.nino.proyecto_ecovoltapp.ui.theme.Proyecto_ecovoltappTheme
 
 class MainActivity : ComponentActivity() {
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Proyecto_ecovoltappTheme {
-                AppNavigation()
+                EcovoltNavigation()
             }
         }
     }

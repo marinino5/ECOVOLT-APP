@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "936423422420",
+    "project_id": "ecovoltapp-f1d41",
+    "storage_bucket": "ecovoltapp-f1d41.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936423422420:android:ca37d7a068a5977a4e7e41",
+        "android_client_info": {
+          "package_name": "me.mariana.nino.proyecto_ecovoltapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAglGN3zk5gjnqXvLGyZY33KcW7A2Sx6Os"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
