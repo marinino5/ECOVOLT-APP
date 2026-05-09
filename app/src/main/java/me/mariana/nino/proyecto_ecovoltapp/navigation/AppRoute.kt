@@ -7,6 +7,7 @@ object AppRoutes {
     const val HOW_IT_WORKS = "how_it_works"
     const val ABOUT = "about"
 
+    const val HOME = "home"
     const val MAP = "map"
     const val SCOOTER_LIST = "scooter_list"
     const val SCOOTER_DETAIL = "scooter_detail"

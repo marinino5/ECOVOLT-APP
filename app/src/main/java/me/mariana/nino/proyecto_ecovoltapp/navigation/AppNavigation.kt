@@ -8,6 +8,8 @@ import me.mariana.nino.proyecto_ecovoltapp.auth.LoginScreen
 import me.mariana.nino.proyecto_ecovoltapp.auth.RegisterScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.PlaceholderScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.WelcomeScreen
+import me.mariana.nino.proyecto_ecovoltapp.ui.screens.MapScreen
+import me.mariana.nino.proyecto_ecovoltapp.ui.screens.HomeScreen
 
 @Composable
 fun EcovoltNavigation() {
@@ -45,8 +47,8 @@ fun EcovoltNavigation() {
                     }
                 },
                 onLoginSuccess = {
-                    navController.navigate(AppRoutes.MAP) {
-                        popUpTo(AppRoutes.WELCOME) {
+                    navController.navigate(route = AppRoutes.HOME) {
+                        popUpTo(AppRoutes.LOGIN) {
                             inclusive = true
                         }
                     }
@@ -72,17 +74,36 @@ fun EcovoltNavigation() {
                 }
             )
         }
-
-        composable(AppRoutes.MAP) {
-            PlaceholderScreen(
-                title = "Mapa de parques",
-                subtitle = "Selecciona una estación disponible en Bucaramanga.",
-                primaryButtonText = "Ver flota disponible",
-                onPrimaryClick = {
-                    navController.navigate(AppRoutes.SCOOTER_LIST)
+        composable(route = AppRoutes.HOME) {
+            HomeScreen(
+                onMapClick = {
+                    navController.navigate(route = AppRoutes.MAP)
                 },
-                onBackClick = {
-                    navController.popBackStack()
+                onFleetClick = {
+                    navController.navigate(route = AppRoutes.SCOOTER_LIST)
+                },
+                onHistoryClick = {
+                    navController.navigate(route = AppRoutes.HISTORY)
+                },
+                onProfileClick = {
+                    navController.navigate(route = AppRoutes.PROFILE)
+                },
+                onSupportClick = {
+                    navController.navigate(route = AppRoutes.SUPPORT)
+                }
+            )
+        }
+        composable(route = AppRoutes.MAP) {
+            MapScreen(
+                onViewFleetClick = {
+                    navController.navigate(route = AppRoutes.SCOOTER_LIST)
+                },
+                onHomeClick = {
+                    navController.navigate(route = AppRoutes.HOME) {
+                        popUpTo(AppRoutes.HOME) {
+                            inclusive = false
+                        }
+                    }
                 }
             )
         }
