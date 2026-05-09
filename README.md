@@ -1,7 +1,7 @@
 # ECOVOLTAPP
 
 <p align="center">
-  <img src="logoeco.png" alt="Logo Ecovolt" width="750"/>
+  <img src="ecologo.png" alt="Logo Ecovolt" width="750"/>
 </p>
 
 <p align="center">
