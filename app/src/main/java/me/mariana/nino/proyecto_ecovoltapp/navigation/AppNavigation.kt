@@ -6,10 +6,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import me.mariana.nino.proyecto_ecovoltapp.auth.LoginScreen
 import me.mariana.nino.proyecto_ecovoltapp.auth.RegisterScreen
+import me.mariana.nino.proyecto_ecovoltapp.ui.screens.FleetScreen
+import me.mariana.nino.proyecto_ecovoltapp.ui.screens.HomeScreen
+import me.mariana.nino.proyecto_ecovoltapp.ui.screens.MapScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.PlaceholderScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.WelcomeScreen
-import me.mariana.nino.proyecto_ecovoltapp.ui.screens.MapScreen
-import me.mariana.nino.proyecto_ecovoltapp.ui.screens.HomeScreen
 
 @Composable
 fun EcovoltNavigation() {
@@ -47,7 +48,7 @@ fun EcovoltNavigation() {
                     }
                 },
                 onLoginSuccess = {
-                    navController.navigate(route = AppRoutes.HOME) {
+                    navController.navigate(AppRoutes.HOME) {
                         popUpTo(AppRoutes.LOGIN) {
                             inclusive = true
                         }
@@ -74,50 +75,172 @@ fun EcovoltNavigation() {
                 }
             )
         }
+
         composable(route = AppRoutes.HOME) {
             HomeScreen(
                 onMapClick = {
-                    navController.navigate(route = AppRoutes.MAP)
+                    navController.navigate(AppRoutes.MAP) {
+                        launchSingleTop = true
+                    }
                 },
                 onFleetClick = {
-                    navController.navigate(route = AppRoutes.SCOOTER_LIST)
+                    navController.navigate(AppRoutes.FLEET) {
+                        launchSingleTop = true
+                    }
                 },
                 onHistoryClick = {
-                    navController.navigate(route = AppRoutes.HISTORY)
+                    navController.navigate(AppRoutes.HISTORY) {
+                        launchSingleTop = true
+                    }
                 },
                 onProfileClick = {
-                    navController.navigate(route = AppRoutes.PROFILE)
+                    navController.navigate(AppRoutes.PROFILE) {
+                        launchSingleTop = true
+                    }
                 },
                 onSupportClick = {
-                    navController.navigate(route = AppRoutes.SUPPORT)
-                }
-            )
-        }
-        composable(route = AppRoutes.MAP) {
-            MapScreen(
-                onViewFleetClick = {
-                    navController.navigate(route = AppRoutes.SCOOTER_LIST)
-                },
-                onHomeClick = {
-                    navController.navigate(route = AppRoutes.HOME) {
-                        popUpTo(AppRoutes.HOME) {
-                            inclusive = false
-                        }
+                    navController.navigate(AppRoutes.SUPPORT) {
+                        launchSingleTop = true
                     }
                 }
             )
         }
 
-        composable(AppRoutes.SCOOTER_LIST) {
-            PlaceholderScreen(
-                title = "Flota de patinetes",
-                subtitle = "Aquí se mostrará la lista de patinetes disponibles.",
-                primaryButtonText = "Ver detalle del patinete",
-                onPrimaryClick = {
+        composable(route = AppRoutes.MAP) {
+            MapScreen(
+                onFleetClick = { stationName ->
+                    navController.navigate(AppRoutes.fleetRoute(stationName)) {
+                        launchSingleTop = true
+                    }
+                },
+                onHomeClick = {
+                    navController.navigate(AppRoutes.HOME) {
+                        launchSingleTop = true
+                    }
+                },
+                onHistoryClick = {
+                    navController.navigate(AppRoutes.HISTORY) {
+                        launchSingleTop = true
+                    }
+                },
+                onProfileClick = {
+                    navController.navigate(AppRoutes.PROFILE) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable(route = AppRoutes.FLEET) {
+            FleetScreen(
+                stationName = "Estación Ecovolt",
+                onMapClick = {
+                    navController.navigate(AppRoutes.MAP) {
+                        launchSingleTop = true
+                    }
+                },
+                onFleetClick = {
+                    navController.navigate(AppRoutes.FLEET) {
+                        launchSingleTop = true
+                    }
+                },
+                onHomeClick = {
+                    navController.navigate(AppRoutes.HOME) {
+                        launchSingleTop = true
+                    }
+                },
+                onHistoryClick = {
+                    navController.navigate(AppRoutes.HISTORY) {
+                        launchSingleTop = true
+                    }
+                },
+                onProfileClick = {
+                    navController.navigate(AppRoutes.PROFILE) {
+                        launchSingleTop = true
+                    }
+                },
+                onDetailClick = { _: String ->
                     navController.navigate(AppRoutes.SCOOTER_DETAIL)
                 },
-                onBackClick = {
-                    navController.popBackStack()
+                onReserveClick = { _: String ->
+                    navController.navigate(AppRoutes.RESERVATION)
+                }
+            )
+        }
+
+        composable(route = AppRoutes.FLEET_WITH_STATION) { backStackEntry ->
+            val stationName = backStackEntry.arguments?.getString("stationName")
+                ?: "Estación Ecovolt"
+
+            FleetScreen(
+                stationName = stationName,
+                onMapClick = {
+                    navController.navigate(AppRoutes.MAP) {
+                        launchSingleTop = true
+                    }
+                },
+                onFleetClick = {
+                    navController.navigate(AppRoutes.FLEET) {
+                        launchSingleTop = true
+                    }
+                },
+                onHomeClick = {
+                    navController.navigate(AppRoutes.HOME) {
+                        launchSingleTop = true
+                    }
+                },
+                onHistoryClick = {
+                    navController.navigate(AppRoutes.HISTORY) {
+                        launchSingleTop = true
+                    }
+                },
+                onProfileClick = {
+                    navController.navigate(AppRoutes.PROFILE) {
+                        launchSingleTop = true
+                    }
+                },
+                onDetailClick = { _: String ->
+                    navController.navigate(AppRoutes.SCOOTER_DETAIL)
+                },
+                onReserveClick = { _: String ->
+                    navController.navigate(AppRoutes.RESERVATION)
+                }
+            )
+        }
+
+        composable(AppRoutes.SCOOTER_LIST) {
+            FleetScreen(
+                stationName = "Estación Ecovolt",
+                onMapClick = {
+                    navController.navigate(AppRoutes.MAP) {
+                        launchSingleTop = true
+                    }
+                },
+                onFleetClick = {
+                    navController.navigate(AppRoutes.FLEET) {
+                        launchSingleTop = true
+                    }
+                },
+                onHomeClick = {
+                    navController.navigate(AppRoutes.HOME) {
+                        launchSingleTop = true
+                    }
+                },
+                onHistoryClick = {
+                    navController.navigate(AppRoutes.HISTORY) {
+                        launchSingleTop = true
+                    }
+                },
+                onProfileClick = {
+                    navController.navigate(AppRoutes.PROFILE) {
+                        launchSingleTop = true
+                    }
+                },
+                onDetailClick = { _: String ->
+                    navController.navigate(AppRoutes.SCOOTER_DETAIL)
+                },
+                onReserveClick = { _: String ->
+                    navController.navigate(AppRoutes.RESERVATION)
                 }
             )
         }
@@ -139,7 +262,7 @@ fun EcovoltNavigation() {
         composable(AppRoutes.RESERVATION) {
             PlaceholderScreen(
                 title = "Confirmar reserva",
-                subtitle = "Revisa el patinete seleccionado antes del pago.",
+                subtitle = "Revisa el vehículo seleccionado antes del pago.",
                 primaryButtonText = "Confirmar reserva",
                 onPrimaryClick = {
                     navController.navigate(AppRoutes.PAYMENT)

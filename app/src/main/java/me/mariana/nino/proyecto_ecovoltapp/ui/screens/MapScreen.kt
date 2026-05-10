@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.NearMe
@@ -68,8 +68,10 @@ data class EcoStation(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(
-    onViewFleetClick: (EcoStation) -> Unit = {},
-    onHomeClick: () -> Unit = {}
+    onFleetClick: (String) -> Unit = {},
+    onHomeClick: () -> Unit = {},
+    onHistoryClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
 ) {
     val bucaramanga = LatLng(7.1193, -73.1227)
 
@@ -132,7 +134,7 @@ fun MapScreen(
                 Marker(
                     state = MarkerState(position = station.position),
                     title = station.name,
-                    snippet = "${station.availableScooters} patinetes disponibles",
+                    snippet = "${station.availableScooters} vehículos disponibles",
                     onClick = {
                         selectedStation = station
                         showStationSheet = true
@@ -168,7 +170,9 @@ fun MapScreen(
             }
 
             FloatingActionButton(
-                onClick = {},
+                onClick = {
+                    // Luego aquí conectamos filtros
+                },
                 containerColor = Color.White,
                 contentColor = Color(0xFF007A3D)
             ) {
@@ -181,19 +185,29 @@ fun MapScreen(
 
         MapBottomNavigation(
             modifier = Modifier.align(Alignment.BottomCenter),
-            onHomeClick = onHomeClick
+            onMapClick = {
+                // Ya estamos en el mapa
+            },
+            onFleetClick = {
+                onFleetClick(selectedStation?.name ?: "Estación Ecovolt")
+            },
+            onHomeClick = onHomeClick,
+            onHistoryClick = onHistoryClick,
+            onProfileClick = onProfileClick
         )
 
         if (showStationSheet && selectedStation != null) {
             ModalBottomSheet(
-                onDismissRequest = { showStationSheet = false },
+                onDismissRequest = {
+                    showStationSheet = false
+                },
                 sheetState = sheetState,
                 containerColor = Color.White
             ) {
                 StationDetailCard(
                     station = selectedStation!!,
                     onViewFleetClick = {
-                        onViewFleetClick(selectedStation!!)
+                        onFleetClick(selectedStation!!.name)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -238,7 +252,11 @@ private fun MapTopBar(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                IconButton(onClick = {}) {
+                IconButton(
+                    onClick = {
+                        // Luego aquí puedes conectar filtros
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.Default.FilterList,
                         contentDescription = "Filtros",
@@ -323,7 +341,7 @@ private fun StationDetailCard(
             )
 
             Text(
-                text = "${station.availableScooters} patinetes disponibles",
+                text = "${station.availableScooters} vehículos disponibles",
                 modifier = Modifier.padding(start = 6.dp),
                 color = Color.DarkGray
             )
@@ -351,7 +369,8 @@ private fun StationDetailCard(
                 .fillMaxWidth()
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF007A3D)
+                containerColor = Color(0xFF007A3D),
+                contentColor = Color.White
             ),
             shape = RoundedCornerShape(14.dp)
         ) {
@@ -366,7 +385,11 @@ private fun StationDetailCard(
 @Composable
 private fun MapBottomNavigation(
     modifier: Modifier = Modifier,
-    onHomeClick: () -> Unit
+    onMapClick: () -> Unit,
+    onFleetClick: () -> Unit,
+    onHomeClick: () -> Unit,
+    onHistoryClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     NavigationBar(
         modifier = modifier,
@@ -374,30 +397,30 @@ private fun MapBottomNavigation(
     ) {
         NavigationBarItem(
             selected = true,
-            onClick = {
-                // Ya estamos en mapa, no hace nada
-            },
+            onClick = onMapClick,
             icon = {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = "Mapa"
                 )
             },
-            label = { Text("Mapa") }
+            label = {
+                Text("Mapa")
+            }
         )
 
         NavigationBarItem(
             selected = false,
-            onClick = {
-                // Luego conectamos con funcionalidad 5
-            },
+            onClick = onFleetClick,
             icon = {
                 Icon(
                     imageVector = Icons.Default.TwoWheeler,
                     contentDescription = "Flota"
                 )
             },
-            label = { Text("Flota") }
+            label = {
+                Text("Flota")
+            }
         )
 
         NavigationBarItem(
@@ -418,35 +441,37 @@ private fun MapBottomNavigation(
                     )
                 }
             },
-            label = { Text("") }
+            label = {
+                Text("")
+            }
         )
 
         NavigationBarItem(
             selected = false,
-            onClick = {
-                // Luego conectamos historial
-            },
+            onClick = onHistoryClick,
             icon = {
                 Icon(
                     imageVector = Icons.Default.ReceiptLong,
                     contentDescription = "Historial"
                 )
             },
-            label = { Text("Historial") }
+            label = {
+                Text("Historial")
+            }
         )
 
         NavigationBarItem(
             selected = false,
-            onClick = {
-                // Luego conectamos perfil
-            },
+            onClick = onProfileClick,
             icon = {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = "Perfil"
                 )
             },
-            label = { Text("Perfil") }
+            label = {
+                Text("Perfil")
+            }
         )
     }
 }
