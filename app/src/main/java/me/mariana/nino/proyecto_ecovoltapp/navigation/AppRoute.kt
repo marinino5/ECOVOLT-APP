@@ -11,8 +11,11 @@ object AppRoutes {
     const val FLEET_WITH_STATION = "fleet/{stationName}"
 
     const val SCOOTER_LIST = "scooter_list"
-    const val SCOOTER_DETAIL = "scooter_detail"
-    const val RESERVATION = "reservation"
+
+    const val VEHICLE_DETAIL = "vehicle_detail/{vehicleCode}"
+
+    const val RESERVATION = "reservation/{vehicleCode}"
+
     const val PAYMENT = "payment"
     const val ACTIVE_TRIP = "active_trip"
     const val FINISH_TRIP = "finish_trip"
@@ -22,5 +25,13 @@ object AppRoutes {
 
     fun fleetRoute(stationName: String): String {
         return "fleet/$stationName"
+    }
+
+    fun vehicleDetailRoute(vehicleCode: String): String {
+        return "vehicle_detail/$vehicleCode"
+    }
+
+    fun reservationRoute(vehicleCode: String): String {
+        return "reservation/$vehicleCode"
     }
 }

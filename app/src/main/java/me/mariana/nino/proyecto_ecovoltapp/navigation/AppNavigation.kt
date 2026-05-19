@@ -1,20 +1,42 @@
 package me.mariana.nino.proyecto_ecovoltapp.navigation
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import me.mariana.nino.proyecto_ecovoltapp.auth.LoginScreen
 import me.mariana.nino.proyecto_ecovoltapp.auth.RegisterScreen
+import me.mariana.nino.proyecto_ecovoltapp.data.VehicleRepository
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.FleetScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.HomeScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.MapScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.PlaceholderScreen
+import me.mariana.nino.proyecto_ecovoltapp.ui.screens.ReservationScreen
+import me.mariana.nino.proyecto_ecovoltapp.ui.screens.VehicleDetailScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.WelcomeScreen
 
 @Composable
 fun EcovoltNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+
+    fun navigateToReservationIfAvailable(vehicleCode: String) {
+        val vehicle = VehicleRepository.getVehicleByCode(vehicleCode)
+
+        if (vehicle?.isAvailable == true) {
+            navController.navigate(AppRoutes.reservationRoute(vehicleCode))
+        } else {
+            Toast.makeText(
+                context,
+                "Este vehículo está en uso. No es posible reservarlo en este momento.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -159,16 +181,23 @@ fun EcovoltNavigation() {
                         launchSingleTop = true
                     }
                 },
-                onDetailClick = { _: String ->
-                    navController.navigate(AppRoutes.SCOOTER_DETAIL)
+                onDetailClick = { vehicleCode ->
+                    navController.navigate(AppRoutes.vehicleDetailRoute(vehicleCode))
                 },
-                onReserveClick = { _: String ->
-                    navController.navigate(AppRoutes.RESERVATION)
+                onReserveClick = { vehicleCode ->
+                    navigateToReservationIfAvailable(vehicleCode)
                 }
             )
         }
 
-        composable(route = AppRoutes.FLEET_WITH_STATION) { backStackEntry ->
+        composable(
+            route = AppRoutes.FLEET_WITH_STATION,
+            arguments = listOf(
+                navArgument("stationName") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
             val stationName = backStackEntry.arguments?.getString("stationName")
                 ?: "Estación Ecovolt"
 
@@ -199,11 +228,11 @@ fun EcovoltNavigation() {
                         launchSingleTop = true
                     }
                 },
-                onDetailClick = { _: String ->
-                    navController.navigate(AppRoutes.SCOOTER_DETAIL)
+                onDetailClick = { vehicleCode ->
+                    navController.navigate(AppRoutes.vehicleDetailRoute(vehicleCode))
                 },
-                onReserveClick = { _: String ->
-                    navController.navigate(AppRoutes.RESERVATION)
+                onReserveClick = { vehicleCode ->
+                    navigateToReservationIfAvailable(vehicleCode)
                 }
             )
         }
@@ -236,41 +265,105 @@ fun EcovoltNavigation() {
                         launchSingleTop = true
                     }
                 },
-                onDetailClick = { _: String ->
-                    navController.navigate(AppRoutes.SCOOTER_DETAIL)
+                onDetailClick = { vehicleCode ->
+                    navController.navigate(AppRoutes.vehicleDetailRoute(vehicleCode))
                 },
-                onReserveClick = { _: String ->
-                    navController.navigate(AppRoutes.RESERVATION)
+                onReserveClick = { vehicleCode ->
+                    navigateToReservationIfAvailable(vehicleCode)
                 }
             )
         }
 
-        composable(AppRoutes.SCOOTER_DETAIL) {
-            PlaceholderScreen(
-                title = "Detalle del patinete",
-                subtitle = "Información del vehículo, batería, tarifa y estado.",
-                primaryButtonText = "Reservar ahora",
-                onPrimaryClick = {
-                    navController.navigate(AppRoutes.RESERVATION)
-                },
-                onBackClick = {
-                    navController.popBackStack()
+        composable(
+            route = AppRoutes.VEHICLE_DETAIL,
+            arguments = listOf(
+                navArgument("vehicleCode") {
+                    type = NavType.StringType
                 }
             )
+        ) { backStackEntry ->
+            val vehicleCode = backStackEntry.arguments?.getString("vehicleCode") ?: ""
+            val vehicle = VehicleRepository.getVehicleByCode(vehicleCode)
+
+            if (vehicle != null) {
+                VehicleDetailScreen(
+                    vehicle = vehicle,
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onReserveClick = {
+                        navigateToReservationIfAvailable(vehicle.code)
+                    },
+                    onRouteClick = {
+                        navController.navigate(AppRoutes.MAP) {
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            } else {
+                PlaceholderScreen(
+                    title = "Vehículo no encontrado",
+                    subtitle = "No fue posible cargar la información del vehículo seleccionado.",
+                    primaryButtonText = "Volver",
+                    onPrimaryClick = {
+                        navController.popBackStack()
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
-        composable(AppRoutes.RESERVATION) {
-            PlaceholderScreen(
-                title = "Confirmar reserva",
-                subtitle = "Revisa el vehículo seleccionado antes del pago.",
-                primaryButtonText = "Confirmar reserva",
-                onPrimaryClick = {
-                    navController.navigate(AppRoutes.PAYMENT)
-                },
-                onBackClick = {
-                    navController.popBackStack()
+        composable(
+            route = AppRoutes.RESERVATION,
+            arguments = listOf(
+                navArgument("vehicleCode") {
+                    type = NavType.StringType
                 }
             )
+        ) { backStackEntry ->
+            val vehicleCode = backStackEntry.arguments?.getString("vehicleCode") ?: ""
+            val vehicle = VehicleRepository.getVehicleByCode(vehicleCode)
+
+            if (vehicle == null) {
+                PlaceholderScreen(
+                    title = "Vehículo no encontrado",
+                    subtitle = "No fue posible cargar la reserva porque el vehículo no existe.",
+                    primaryButtonText = "Volver",
+                    onPrimaryClick = {
+                        navController.popBackStack()
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            } else if (!vehicle.isAvailable) {
+                PlaceholderScreen(
+                    title = "Reserva no disponible",
+                    subtitle = "Este vehículo está en uso. No es posible reservarlo en este momento.",
+                    primaryButtonText = "Volver a la flota",
+                    onPrimaryClick = {
+                        navController.popBackStack()
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            } else {
+                ReservationScreen(
+                    vehicle = vehicle,
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onConfirmReservation = {
+                        navController.navigate(AppRoutes.PAYMENT)
+                    },
+                    onCancel = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         composable(AppRoutes.PAYMENT) {
@@ -325,11 +418,19 @@ fun EcovoltNavigation() {
 
         composable(AppRoutes.HISTORY) {
             PlaceholderScreen(
-                title = "Historial de viajes",
-                subtitle = "Consulta tus recorridos anteriores.",
-                primaryButtonText = "Ir a perfil",
+                title = "Mis viajes",
+                subtitle = "Aquí podrás consultar tus reservas, viajes activos y recorridos finalizados.",
+                primaryButtonText = "Volver al mapa",
                 onPrimaryClick = {
-                    navController.navigate(AppRoutes.PROFILE)
+                    navController.navigate(AppRoutes.MAP) {
+                        launchSingleTop = true
+                    }
+                },
+                secondaryButtonText = "Ir a perfil",
+                onSecondaryClick = {
+                    navController.navigate(AppRoutes.PROFILE) {
+                        launchSingleTop = true
+                    }
                 },
                 onBackClick = {
                     navController.popBackStack()

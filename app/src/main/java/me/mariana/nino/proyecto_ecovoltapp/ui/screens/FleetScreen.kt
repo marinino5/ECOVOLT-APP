@@ -2,6 +2,7 @@ package me.mariana.nino.proyecto_ecovoltapp.ui.screens
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -40,7 +42,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,80 +56,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.mariana.nino.proyecto_ecovoltapp.R
-
-data class FleetVehicle(
-    val id: String,
-    val name: String,
-    val type: String,
-    val battery: Int,
-    val pricePerMinute: Int,
-    val distanceMeters: Int,
-    val status: VehicleStatus,
-    @DrawableRes val imageRes: Int
-)
-
-enum class VehicleStatus(
-    val label: String,
-    val color: Color,
-    val background: Color
-) {
-    AVAILABLE(
-        label = "Disponible",
-        color = Color(0xFF0B6B35),
-        background = Color(0xFFDFF3E4)
-    ),
-    IN_USE(
-        label = "En uso",
-        color = Color(0xFFC62828),
-        background = Color(0xFFFFDADA)
-    )
-}
-
-private val sampleFleet = listOf(
-    FleetVehicle(
-        id = "ECO-1258",
-        name = "Patineta Eco Urbana",
-        type = "Patinete",
-        battery = 78,
-        pricePerMinute = 450,
-        distanceMeters = 120,
-        status = VehicleStatus.AVAILABLE,
-        imageRes = R.drawable.patineta1
-    ),
-    FleetVehicle(
-        id = "ECO-0987",
-        name = "Patineta Volt Lite",
-        type = "Patinete",
-        battery = 45,
-        pricePerMinute = 480,
-        distanceMeters = 250,
-        status = VehicleStatus.AVAILABLE,
-        imageRes = R.drawable.patineta2
-    ),
-    FleetVehicle(
-        id = "MOTO-5643",
-        name = "Moto Volt City",
-        type = "Moto",
-        battery = 67,
-        pricePerMinute = 700,
-        distanceMeters = 300,
-        status = VehicleStatus.AVAILABLE,
-        imageRes = R.drawable.moto1
-    ),
-    FleetVehicle(
-        id = "MOTO-7712",
-        name = "Moto Eco Ride",
-        type = "Moto",
-        battery = 30,
-        pricePerMinute = 750,
-        distanceMeters = 500,
-        status = VehicleStatus.IN_USE,
-        imageRes = R.drawable.moto2
-    )
-)
+import me.mariana.nino.proyecto_ecovoltapp.data.Vehicle
+import me.mariana.nino.proyecto_ecovoltapp.data.VehicleRepository
+import me.mariana.nino.proyecto_ecovoltapp.data.VehicleStatus
+import me.mariana.nino.proyecto_ecovoltapp.data.VehicleType
 
 @Composable
 fun FleetScreen(
@@ -140,14 +76,11 @@ fun FleetScreen(
     onDetailClick: (String) -> Unit = {},
     onReserveClick: (String) -> Unit = {}
 ) {
-    var selectedFilter by remember { mutableStateOf("Patinetes") }
+    var selectedType by remember { mutableStateOf(VehicleType.PATINETA) }
 
-    val filteredFleet = sampleFleet.filter { vehicle ->
-        when (selectedFilter) {
-            "Patinetes" -> vehicle.type == "Patinete"
-            "Motos" -> vehicle.type == "Moto"
-            else -> vehicle.type == "Patinete"
-        }
+    val vehicles = VehicleRepository.vehicles
+    val filteredFleet = vehicles.filter { vehicle ->
+        vehicle.type == selectedType
     }
 
     Scaffold(
@@ -168,7 +101,7 @@ fun FleetScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.fondo_2),
-                contentDescription = "Fondo de flota $stationName",
+                contentDescription = "Fondo de flota",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
@@ -176,7 +109,7 @@ fun FleetScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White.copy(alpha = 0.40f))
+                    .background(Color.White.copy(alpha = 0.30f))
             )
 
             Column(
@@ -184,33 +117,35 @@ fun FleetScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                FleetHeader()
+                FleetHeader(stationName = stationName)
 
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 20.dp)
                 ) {
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         FleetFilterChip(
-                            text = "Patinetes",
-                            selected = selectedFilter == "Patinetes",
+                            text = "Patinetas",
+                            selected = selectedType == VehicleType.PATINETA,
                             onClick = {
-                                selectedFilter = "Patinetes"
-                            }
+                                selectedType = VehicleType.PATINETA
+                            },
+                            modifier = Modifier.weight(1f)
                         )
 
                         FleetFilterChip(
                             text = "Motos",
-                            selected = selectedFilter == "Motos",
+                            selected = selectedType == VehicleType.MOTO,
                             onClick = {
-                                selectedFilter = "Motos"
-                            }
+                                selectedType = VehicleType.MOTO
+                            },
+                            modifier = Modifier.weight(1f)
                         )
                     }
 
@@ -218,22 +153,23 @@ fun FleetScreen(
 
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(14.dp),
+                        contentPadding = PaddingValues(bottom = 100.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(filteredFleet) { vehicle ->
                             FleetVehicleCard(
                                 vehicle = vehicle,
                                 onDetailClick = {
-                                    onDetailClick(vehicle.id)
+                                    onDetailClick(vehicle.code)
                                 },
                                 onReserveClick = {
-                                    onReserveClick(vehicle.id)
+                                    onReserveClick(vehicle.code)
                                 }
                             )
                         }
 
                         item {
-                            Spacer(modifier = Modifier.height(14.dp))
+                            Spacer(modifier = Modifier.height(18.dp))
                         }
                     }
                 }
@@ -243,140 +179,101 @@ fun FleetScreen(
 }
 
 @Composable
-private fun FleetHeader() {
-    val gradientBrush = Brush.linearGradient(
-        colors = listOf(
-            Color(0xFF007A3D),
-            Color(0xFF1FAE5B)
-        )
-    )
-
+private fun FleetHeader(
+    stationName: String
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(start = 20.dp, end = 20.dp, top = 18.dp, bottom = 8.dp)
+            .padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 8.dp)
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(28.dp))
-                .background(gradientBrush)
-                .padding(horizontal = 22.dp, vertical = 26.dp)
+                .padding(horizontal = 10.dp, vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color.White.copy(alpha = 0.18f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.TwoWheeler,
-                        contentDescription = "Flota",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
+            Text(
+                text = "FLOTA DISPONIBLE",
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 25.sp,
+                color = Color(0xFF0B5D2A),
+                textAlign = TextAlign.Center
+            )
 
-                Spacer(modifier = Modifier.width(14.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "FLOTA DISPONIBLE",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 27.sp,
-                        color = Color.White
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Elige entre patinetes y motos eléctricas",
-                        fontSize = 13.sp,
-                        color = Color.White.copy(alpha = 0.92f)
-                    )
-                }
-            }
+            Text(
+                text = "Selecciona el vehículo que quieres revisar o reservar",
+                fontSize = 13.sp,
+                color = Color(0xFF263A2C),
+                textAlign = TextAlign.Center,
+                lineHeight = 18.sp,
+                modifier = Modifier.padding(horizontal = 18.dp)
+            )
         }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FleetFilterChip(
     text: String,
     selected: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val green = Color(0xFF007A3D)
+    val green = Color(0xFF0B6B35)
 
     FilterChip(
         selected = selected,
         onClick = onClick,
+        modifier = modifier.height(44.dp),
         label = {
             Text(
                 text = text,
-                fontSize = 13.sp,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                fontSize = 14.sp,
+                fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
         },
+        shape = RoundedCornerShape(16.dp),
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = Color(0xFFDFF3E4),
             selectedLabelColor = green,
-            containerColor = Color.White.copy(alpha = 0.96f),
-            labelColor = Color.DarkGray
-        )
+            containerColor = Color.White.copy(alpha = 0.94f),
+            labelColor = Color(0xFF4E5D52)
+        ),
+        border = null
     )
 }
 
 @Composable
 private fun FleetVehicleCard(
-    vehicle: FleetVehicle,
+    vehicle: Vehicle,
     onDetailClick: () -> Unit,
     onReserveClick: () -> Unit
 ) {
-    val green = Color(0xFF007A3D)
-    val darkGreen = Color(0xFF005C2F)
-    val isAvailable = vehicle.status == VehicleStatus.AVAILABLE
+    val green = Color(0xFF0B7A3A)
+    val darkGreen = Color(0xFF064D25)
+    val isAvailable = vehicle.status == VehicleStatus.DISPONIBLE
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
+        shape = RoundedCornerShape(26.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White.copy(alpha = 0.97f)
         ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
     ) {
         Column(
-            modifier = Modifier.padding(14.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(78.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFFF1F6F1)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = vehicle.imageRes),
-                        contentDescription = vehicle.name,
-                        modifier = Modifier
-                            .size(64.dp)
-                            .padding(4.dp),
-                        contentScale = ContentScale.Fit
-                    )
-                }
+                VehicleThumbnail(vehicle = vehicle)
 
                 Spacer(modifier = Modifier.width(14.dp))
 
@@ -387,38 +284,39 @@ private fun FleetVehicleCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = vehicle.id,
-                            fontWeight = FontWeight.Bold,
+                            text = vehicle.code,
+                            fontWeight = FontWeight.ExtraBold,
                             fontSize = 17.sp,
-                            color = Color(0xFF202020),
+                            color = Color(0xFF1F2A22),
                             modifier = Modifier.weight(1f)
                         )
 
-                        StatusBadge(vehicle.status)
+                        StatusBadge(status = vehicle.status)
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
 
                     Text(
-                        text = vehicle.name,
+                        text = vehicle.model,
                         fontSize = 13.sp,
-                        color = Color.Gray
+                        color = Color(0xFF606D64),
+                        fontWeight = FontWeight.Medium
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(9.dp))
 
                     BatteryIndicator(battery = vehicle.battery)
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(9.dp))
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "$ ${vehicle.pricePerMinute} / min",
-                            fontWeight = FontWeight.SemiBold,
+                            text = "${vehicle.pricePerMinute} COP/min",
+                            fontWeight = FontWeight.Bold,
                             color = darkGreen,
-                            fontSize = 14.sp
+                            fontSize = 13.sp
                         )
 
                         Spacer(modifier = Modifier.width(10.dp))
@@ -430,9 +328,11 @@ private fun FleetVehicleCard(
                             modifier = Modifier.size(15.dp)
                         )
 
+                        Spacer(modifier = Modifier.width(3.dp))
+
                         Text(
                             text = "${vehicle.distanceMeters} m",
-                            color = Color.Gray,
+                            color = Color(0xFF6C756F),
                             fontSize = 12.sp
                         )
                     }
@@ -441,14 +341,35 @@ private fun FleetVehicleCard(
 
             Spacer(modifier = Modifier.height(14.dp))
 
+            if (!isAvailable) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFFFFF0F0))
+                        .padding(horizontal = 12.dp, vertical = 9.dp)
+                ) {
+                    Text(
+                        text = "Este vehículo está en uso. Puedes ver el detalle, pero no reservarlo.",
+                        color = Color(0xFFC62828),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 OutlinedButton(
                     onClick = onDetailClick,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(46.dp),
+                    shape = RoundedCornerShape(15.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = darkGreen
                     )
@@ -462,22 +383,21 @@ private fun FleetVehicleCard(
                     Spacer(modifier = Modifier.width(6.dp))
 
                     Text(
-                        text = "Ver detalle",
+                        text = "Detalle",
                         fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
                 Button(
                     onClick = onReserveClick,
-                    enabled = isAvailable,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(46.dp),
+                    shape = RoundedCornerShape(15.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = green,
-                        contentColor = Color.White,
-                        disabledContainerColor = Color(0xFFE0E0E0),
-                        disabledContentColor = Color.Gray
+                        containerColor = if (isAvailable) green else Color(0xFFBDBDBD),
+                        contentColor = Color.White
                     )
                 ) {
                     Icon(
@@ -489,7 +409,7 @@ private fun FleetVehicleCard(
                     Spacer(modifier = Modifier.width(6.dp))
 
                     Text(
-                        text = "Reservar",
+                        text = if (isAvailable) "Reservar" else "En uso",
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -500,25 +420,34 @@ private fun FleetVehicleCard(
 }
 
 @Composable
-private fun StatusBadge(status: VehicleStatus) {
+private fun StatusBadge(
+    status: VehicleStatus
+) {
+    val isAvailable = status == VehicleStatus.DISPONIBLE
+
+    val textColor = if (isAvailable) Color(0xFF0B6B35) else Color(0xFFC62828)
+    val backgroundColor = if (isAvailable) Color(0xFFDFF3E4) else Color(0xFFFFDADA)
+
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(50))
-            .background(status.background)
+            .background(backgroundColor)
             .padding(horizontal = 10.dp, vertical = 5.dp)
     ) {
         Text(
             text = status.label,
-            color = status.color,
-            fontWeight = FontWeight.Bold,
+            color = textColor,
+            fontWeight = FontWeight.ExtraBold,
             fontSize = 10.sp
         )
     }
 }
 
 @Composable
-private fun BatteryIndicator(battery: Int) {
-    val green = Color(0xFF007A3D)
+private fun BatteryIndicator(
+    battery: Int
+) {
+    val green = Color(0xFF0B7A3A)
     val orange = Color(0xFFC77700)
     val red = Color(0xFFC62828)
 
@@ -535,7 +464,7 @@ private fun BatteryIndicator(battery: Int) {
             Text(
                 text = "Batería",
                 fontSize = 12.sp,
-                color = Color.Gray
+                color = Color(0xFF6C756F)
             )
 
             Spacer(modifier = Modifier.width(6.dp))
@@ -543,21 +472,21 @@ private fun BatteryIndicator(battery: Int) {
             Text(
                 text = "$battery%",
                 fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.ExtraBold,
                 color = batteryColor
             )
         }
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         LinearProgressIndicator(
             progress = { battery / 100f },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(5.dp)
+                .height(6.dp)
                 .clip(RoundedCornerShape(50)),
             color = batteryColor,
-            trackColor = Color(0xFFE8E8E8)
+            trackColor = Color(0xFFE7EDE8)
         )
     }
 }
@@ -610,7 +539,7 @@ private fun FleetBottomNavigation(
                     modifier = Modifier
                         .size(46.dp)
                         .clip(RoundedCornerShape(50))
-                        .background(Color(0xFF007A3D)),
+                        .background(Color(0xFF0B7A3A)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -631,11 +560,11 @@ private fun FleetBottomNavigation(
             icon = {
                 Icon(
                     imageVector = Icons.Default.ReceiptLong,
-                    contentDescription = "Historial"
+                    contentDescription = "Viajes"
                 )
             },
             label = {
-                Text("Historial")
+                Text("Viajes")
             }
         )
 
