@@ -62,6 +62,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import me.mariana.nino.proyecto_ecovoltapp.R
 import me.mariana.nino.proyecto_ecovoltapp.validations.AuthValidation
@@ -185,36 +187,58 @@ fun RegisterScreen(
                     } else {
                         isLoading = true
 
+                        val nombreLimpio = nombre.trim()
+                        val correoLimpio = correo.trim()
+                        val telefonoLimpio = telefono.trim()
+
                         auth.createUserWithEmailAndPassword(
-                            correo.trim(),
+                            correoLimpio,
                             contrasena
                         ).addOnSuccessListener { result ->
-                            val uid = result.user?.uid.orEmpty()
+                            val createdUser = result.user
+                            val uid = createdUser?.uid.orEmpty()
+
+                            if (uid.isBlank()) {
+                                isLoading = false
+                                errorMessage = "No fue posible obtener el usuario registrado."
+                                return@addOnSuccessListener
+                            }
 
                             val userData = hashMapOf(
                                 "uid" to uid,
-                                "nombreCompleto" to nombre.trim(),
-                                "correo" to correo.trim(),
-                                "telefono" to telefono.trim()
+                                "nombre" to nombreLimpio,
+                                "nombreCompleto" to nombreLimpio,
+                                "correo" to correoLimpio,
+                                "email" to correoLimpio,
+                                "telefono" to telefonoLimpio,
+                                "phone" to telefonoLimpio,
+                                "fechaRegistro" to FieldValue.serverTimestamp()
                             )
 
-                            db.collection("usuarios")
-                                .document(uid)
-                                .set(userData)
-                                .addOnSuccessListener {
-                                    isLoading = false
-                                    showSuccessDialog = true
+                            val profileUpdates = UserProfileChangeRequest.Builder()
+                                .setDisplayName(nombreLimpio)
+                                .build()
 
-                                    nombre = ""
-                                    correo = ""
-                                    telefono = ""
-                                    contrasena = ""
-                                    confirmarContrasena = ""
-                                }
-                                .addOnFailureListener {
-                                    isLoading = false
-                                    errorMessage =
-                                        "La cuenta fue creada, pero no se pudieron guardar los datos."
+                            createdUser?.updateProfile(profileUpdates)
+                                ?.addOnCompleteListener {
+                                    db.collection("usuarios")
+                                        .document(uid)
+                                        .set(userData)
+                                        .addOnSuccessListener {
+                                            isLoading = false
+                                            showSuccessDialog = true
+
+                                            nombre = ""
+                                            correo = ""
+                                            telefono = ""
+                                            contrasena = ""
+                                            confirmarContrasena = ""
+                                        }
+                                        .addOnFailureListener {
+                                            isLoading = false
+                                            errorMessage =
+                                                "La cuenta fue creada, pero no se pudieron guardar los datos."
+                                        }
                                 }
                         }.addOnFailureListener { exception ->
                             isLoading = false
@@ -260,10 +284,11 @@ fun RegisterScreen(
                         TextButton(
                             onClick = {
                                 showSuccessDialog = false
+                                onGoToLogin()
                             }
                         ) {
                             Text(
-                                text = "Entendido",
+                                text = "Ir al login",
                                 color = verdeEcovolt,
                                 fontWeight = FontWeight.Bold
                             )
@@ -274,7 +299,6 @@ fun RegisterScreen(
         }
     }
 }
-
 
 @Composable
 private fun RegisterTopBar(
@@ -466,9 +490,9 @@ private fun RegisterFormCard(
                         IconButton(onClick = onToggleMostrarConfirmarContrasena) {
                             Icon(
                                 imageVector = if (mostrarConfirmarContrasena) {
-                                    Icons.Default.VisibilityOff
-                                } else {
                                     Icons.Default.Visibility
+                                } else {
+                                    Icons.Default.VisibilityOff
                                 },
                                 contentDescription = "Mostrar confirmación",
                                 tint = Color.Gray

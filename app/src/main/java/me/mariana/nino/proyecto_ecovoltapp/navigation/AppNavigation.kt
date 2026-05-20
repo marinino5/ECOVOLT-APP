@@ -16,10 +16,12 @@ import me.mariana.nino.proyecto_ecovoltapp.ui.screens.HomeScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.MapScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.PaymentSimulatedScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.PlaceholderScreen
+import me.mariana.nino.proyecto_ecovoltapp.ui.screens.ProfileScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.ReservationScreen
+import me.mariana.nino.proyecto_ecovoltapp.ui.screens.SupportScreen
+import me.mariana.nino.proyecto_ecovoltapp.ui.screens.TripsScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.VehicleDetailScreen
 import me.mariana.nino.proyecto_ecovoltapp.ui.screens.WelcomeScreen
-import me.mariana.nino.proyecto_ecovoltapp.ui.screens.TripsScreen
 
 @Composable
 fun EcovoltNavigation() {
@@ -62,6 +64,7 @@ fun EcovoltNavigation() {
                         popUpTo(AppRoutes.LOGIN) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 },
                 onGoToRegister = {
@@ -69,6 +72,7 @@ fun EcovoltNavigation() {
                         popUpTo(AppRoutes.LOGIN) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 },
                 onLoginSuccess = {
@@ -76,6 +80,7 @@ fun EcovoltNavigation() {
                         popUpTo(AppRoutes.LOGIN) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -88,6 +93,7 @@ fun EcovoltNavigation() {
                         popUpTo(AppRoutes.REGISTER) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 },
                 onGoToLogin = {
@@ -95,6 +101,7 @@ fun EcovoltNavigation() {
                         popUpTo(AppRoutes.REGISTER) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -419,9 +426,6 @@ fun EcovoltNavigation() {
                     },
                     onPaymentApproved = {
                         navController.navigate(AppRoutes.HISTORY) {
-                            popUpTo(AppRoutes.PAYMENT) {
-                                inclusive = true
-                            }
                             launchSingleTop = true
                         }
                     }
@@ -499,40 +503,40 @@ fun EcovoltNavigation() {
         }
 
         composable(AppRoutes.PROFILE) {
-            PlaceholderScreen(
-                title = "Mi perfil",
-                subtitle = "Información básica del usuario y accesos principales.",
-                primaryButtonText = "Soporte",
-                onPrimaryClick = {
+            ProfileScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onHistoryClick = {
+                    navController.navigate(AppRoutes.HISTORY) {
+                        launchSingleTop = true
+                    }
+                },
+                onSupportClick = {
                     navController.navigate(AppRoutes.SUPPORT) {
                         launchSingleTop = true
                     }
                 },
-                secondaryButtonText = "Cerrar sesión",
-                onSecondaryClick = {
+                onLogoutClick = {
                     navController.navigate(AppRoutes.WELCOME) {
-                        popUpTo(0) {
+                        popUpTo(AppRoutes.WELCOME) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
-                },
-                onBackClick = {
-                    navController.popBackStack()
                 }
             )
         }
 
         composable(AppRoutes.SUPPORT) {
-            PlaceholderScreen(
-                title = "Reporte / Soporte",
-                subtitle = "Formulario para reportar problemas durante el uso del servicio.",
-                primaryButtonText = "Enviar reporte demo",
-                onPrimaryClick = {
-                    navController.navigate(AppRoutes.MAP) {
-                        launchSingleTop = true
-                    }
-                },
+            SupportScreen(
                 onBackClick = {
+                    navController.popBackStack()
+                },
+                onCancelClick = {
+                    navController.popBackStack()
+                },
+                onReportSent = {
                     navController.popBackStack()
                 }
             )
