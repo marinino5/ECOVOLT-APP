@@ -26,6 +26,7 @@ object AppRoutes {
     const val PROFILE = "profile"
     const val SUPPORT = "support"
 
+
     fun fleetRoute(stationName: String): String {
         return "fleet/${Uri.encode(stationName)}"
     }
