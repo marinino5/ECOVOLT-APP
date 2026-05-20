@@ -433,49 +433,7 @@ fun EcovoltNavigation() {
             }
         }
 
-        composable(AppRoutes.ACTIVE_TRIP) {
-            PlaceholderScreen(
-                title = "Viaje en curso",
-                subtitle = "Tiempo, distancia, costo acumulado y estado del viaje.",
-                primaryButtonText = "Finalizar viaje",
-                onPrimaryClick = {
-                    navController.navigate(AppRoutes.FINISH_TRIP) {
-                        launchSingleTop = true
-                    }
-                },
-                secondaryButtonText = "Reportar problema",
-                onSecondaryClick = {
-                    navController.navigate(AppRoutes.SUPPORT) {
-                        launchSingleTop = true
-                    }
-                },
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
-        }
 
-        composable(AppRoutes.FINISH_TRIP) {
-            PlaceholderScreen(
-                title = "Viaje finalizado",
-                subtitle = "Resumen final del recorrido realizado.",
-                primaryButtonText = "Ver historial",
-                onPrimaryClick = {
-                    navController.navigate(AppRoutes.HISTORY) {
-                        launchSingleTop = true
-                    }
-                },
-                secondaryButtonText = "Volver al mapa",
-                onSecondaryClick = {
-                    navController.navigate(AppRoutes.MAP) {
-                        launchSingleTop = true
-                    }
-                },
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
-        }
 
         composable(AppRoutes.HISTORY) {
             TripsScreen(

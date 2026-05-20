@@ -20,8 +20,6 @@ object AppRoutes {
 
     const val PAYMENT = "payment/{vehicleCode}/{minutes}"
 
-    const val ACTIVE_TRIP = "active_trip"
-    const val FINISH_TRIP = "finish_trip"
     const val HISTORY = "history"
     const val PROFILE = "profile"
     const val SUPPORT = "support"
