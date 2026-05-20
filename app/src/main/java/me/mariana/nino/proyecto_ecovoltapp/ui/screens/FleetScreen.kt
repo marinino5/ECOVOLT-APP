@@ -100,7 +100,7 @@ fun FleetScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             Image(
-                painter = painterResource(id = R.drawable.fondo_2),
+                painter = painterResource(id = R.drawable.fondo_1),
                 contentDescription = "Fondo de flota",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -109,7 +109,7 @@ fun FleetScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White.copy(alpha = 0.30f))
+                    .background(Color.White.copy(alpha = 0.12f))
             )
 
             Column(
@@ -499,87 +499,95 @@ private fun FleetBottomNavigation(
     onHistoryClick: () -> Unit,
     onProfileClick: () -> Unit
 ) {
-    NavigationBar(
-        containerColor = Color.White,
-        modifier = Modifier.navigationBarsPadding()
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .navigationBarsPadding()
     ) {
-        NavigationBarItem(
-            selected = false,
-            onClick = onMapClick,
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "Mapa"
-                )
-            },
-            label = {
-                Text("Mapa")
-            }
-        )
-
-        NavigationBarItem(
-            selected = true,
-            onClick = onFleetClick,
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.TwoWheeler,
-                    contentDescription = "Flota"
-                )
-            },
-            label = {
-                Text("Flota")
-            }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = onHomeClick,
-            icon = {
-                Box(
-                    modifier = Modifier
-                        .size(46.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(Color(0xFF0B7A3A)),
-                    contentAlignment = Alignment.Center
-                ) {
+        NavigationBar(
+            containerColor = Color.White,
+            tonalElevation = 0.dp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            NavigationBarItem(
+                selected = false,
+                onClick = onMapClick,
+                icon = {
                     Icon(
-                        imageVector = Icons.Default.Home,
-                        contentDescription = "Inicio",
-                        tint = Color.White
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Mapa"
                     )
+                },
+                label = {
+                    Text("Mapa")
                 }
-            },
-            label = {
-                Text("")
-            }
-        )
+            )
 
-        NavigationBarItem(
-            selected = false,
-            onClick = onHistoryClick,
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.ReceiptLong,
-                    contentDescription = "Viajes"
-                )
-            },
-            label = {
-                Text("Viajes")
-            }
-        )
+            NavigationBarItem(
+                selected = true,
+                onClick = onFleetClick,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.TwoWheeler,
+                        contentDescription = "Flota"
+                    )
+                },
+                label = {
+                    Text("Flota")
+                }
+            )
 
-        NavigationBarItem(
-            selected = false,
-            onClick = onProfileClick,
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Perfil"
-                )
-            },
-            label = {
-                Text("Perfil")
-            }
-        )
+            NavigationBarItem(
+                selected = false,
+                onClick = onHomeClick,
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(Color(0xFF0B7A3A)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "Inicio",
+                            tint = Color.White
+                        )
+                    }
+                },
+                label = {
+                    Text("")
+                }
+            )
+
+            NavigationBarItem(
+                selected = false,
+                onClick = onHistoryClick,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.ReceiptLong,
+                        contentDescription = "Viajes"
+                    )
+                },
+                label = {
+                    Text("Viajes")
+                }
+            )
+
+            NavigationBarItem(
+                selected = false,
+                onClick = onProfileClick,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Perfil"
+                    )
+                },
+                label = {
+                    Text("Perfil")
+                }
+            )
+        }
     }
 }

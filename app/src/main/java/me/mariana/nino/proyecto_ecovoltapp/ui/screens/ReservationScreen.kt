@@ -49,7 +49,7 @@ import me.mariana.nino.proyecto_ecovoltapp.data.VehicleStatus
 fun ReservationScreen(
     vehicle: Vehicle,
     onBack: () -> Unit,
-    onConfirmReservation: () -> Unit,
+    onConfirmReservation: (Int) -> Unit,
     onCancel: () -> Unit
 ) {
     var selectedMinutes by remember { mutableIntStateOf(15) }
@@ -302,7 +302,9 @@ fun ReservationScreen(
                     Spacer(modifier = Modifier.height(18.dp))
 
                     Button(
-                        onClick = onConfirmReservation,
+                        onClick = {
+                            onConfirmReservation(selectedMinutes)
+                        },
                         enabled = vehicle.isAvailable,
                         modifier = Modifier
                             .fillMaxWidth()

@@ -1,5 +1,7 @@
 package me.mariana.nino.proyecto_ecovoltapp.navigation
 
+import android.net.Uri
+
 object AppRoutes {
     const val WELCOME = "welcome"
     const val LOGIN = "login"
@@ -16,7 +18,8 @@ object AppRoutes {
 
     const val RESERVATION = "reservation/{vehicleCode}"
 
-    const val PAYMENT = "payment"
+    const val PAYMENT = "payment/{vehicleCode}/{minutes}"
+
     const val ACTIVE_TRIP = "active_trip"
     const val FINISH_TRIP = "finish_trip"
     const val HISTORY = "history"
@@ -24,14 +27,18 @@ object AppRoutes {
     const val SUPPORT = "support"
 
     fun fleetRoute(stationName: String): String {
-        return "fleet/$stationName"
+        return "fleet/${Uri.encode(stationName)}"
     }
 
     fun vehicleDetailRoute(vehicleCode: String): String {
-        return "vehicle_detail/$vehicleCode"
+        return "vehicle_detail/${Uri.encode(vehicleCode)}"
     }
 
     fun reservationRoute(vehicleCode: String): String {
-        return "reservation/$vehicleCode"
+        return "reservation/${Uri.encode(vehicleCode)}"
+    }
+
+    fun paymentRoute(vehicleCode: String, minutes: Int): String {
+        return "payment/${Uri.encode(vehicleCode)}/$minutes"
     }
 }

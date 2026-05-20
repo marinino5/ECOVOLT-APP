@@ -81,34 +81,10 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.98f),
-                                Color.White.copy(alpha = 0.93f),
-                                Color.White.copy(alpha = 0.70f),
-                                Color.White.copy(alpha = 0.35f),
-                                Color.Transparent
-                            ),
-                            radius = 1120f
-                        )
+                        Color.White.copy(alpha = 0.78f)
                     )
             )
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.White.copy(alpha = 0.06f),
-                                Color.White.copy(alpha = 0.22f),
-                                Color.White.copy(alpha = 0.52f),
-                                Color.White.copy(alpha = 0.84f)
-                            )
-                        )
-                    )
-            )
 
             Column(
                 modifier = Modifier
@@ -197,7 +173,7 @@ private fun StartPanel(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(32.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White.copy(alpha = 0.84f)
+            containerColor = Color.White.copy(alpha = 0.12f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
