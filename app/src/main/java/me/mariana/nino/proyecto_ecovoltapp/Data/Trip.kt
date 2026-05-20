@@ -12,7 +12,8 @@ data class Trip(
     val totalPaid: Int,
     val status: TripStatus,
     val dateText: String,
-    val paymentMethod: String = "Visa demo · 4242"
+    val paymentMethod: String = "Visa demo · 4242",
+    val createdAt: Long = 0L
 )
 
 enum class TripStatus(val label: String) {

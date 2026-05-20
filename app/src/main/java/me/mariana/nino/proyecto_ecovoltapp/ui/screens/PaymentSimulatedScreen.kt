@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
 import me.mariana.nino.proyecto_ecovoltapp.R
 import me.mariana.nino.proyecto_ecovoltapp.data.Vehicle
 import java.text.NumberFormat
@@ -188,7 +189,9 @@ fun PaymentSimulatedScreen(
                         delay(1500)
 
                         if (!tripSaved) {
+                            val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
                             TripRepository.addScheduledTrip(
+                                userId = userId,
                                 vehicle = vehicle,
                                 minutes = selectedMinutes,
                                 reservationFee = reservationFee,

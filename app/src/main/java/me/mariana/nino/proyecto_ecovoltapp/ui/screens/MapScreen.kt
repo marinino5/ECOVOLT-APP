@@ -1,5 +1,9 @@
 package me.mariana.nino.proyecto_ecovoltapp.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,9 +58,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import me.mariana.nino.proyecto_ecovoltapp.data.VehicleRepository
@@ -66,6 +78,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
 
 data class EcoStation(
     val name: String,
@@ -160,6 +173,71 @@ fun MapScreen(
         position = CameraPosition.fromLatLngZoom(bucaramanga, 13.2f)
     }
 
+    // ─── GEOLOCALIZACIÓN ────────────────────────────────────────────────
+    val fusedLocationClient = remember {
+        LocationServices.getFusedLocationProviderClient(context)
+    }
+    val scope = rememberCoroutineScope()
+
+    var hasLocationPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    fun centerOnUserLocation() {
+        if (!hasLocationPermission) return
+        try {
+            fusedLocationClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                CancellationTokenSource().token
+            ).addOnSuccessListener { location ->
+                if (location != null) {
+                    val userLatLng = LatLng(location.latitude, location.longitude)
+                    scope.launch {
+                        cameraPositionState.animate(
+                            update = CameraUpdateFactory.newLatLngZoom(userLatLng, 16f),
+                            durationMs = 800
+                        )
+                    }
+                } else {
+                    Toast.makeText(
+                        context,
+                        "No se pudo obtener tu ubicación. Activa el GPS.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }.addOnFailureListener {
+                Toast.makeText(
+                    context,
+                    "Error al obtener ubicación",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        } catch (e: SecurityException) {
+            Toast.makeText(context, "Falta permiso de ubicación", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        hasLocationPermission = granted
+        if (granted) {
+            centerOnUserLocation()
+        } else {
+            Toast.makeText(
+                context,
+                "Necesitamos tu ubicación para mostrarla en el mapa",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+    // ────────────────────────────────────────────────────────────────────
+
     val sheetState: SheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
@@ -169,7 +247,9 @@ fun MapScreen(
     ) {
         GoogleMap(
             modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState
+            cameraPositionState = cameraPositionState,
+            properties = MapProperties(isMyLocationEnabled = hasLocationPermission),
+            uiSettings = MapUiSettings(myLocationButtonEnabled = false)
         ) {
             stations.forEach { station ->
                 Marker(
@@ -199,7 +279,11 @@ fun MapScreen(
         ) {
             FloatingActionButton(
                 onClick = {
-                    // Luego aquí conectamos ubicación real
+                    if (hasLocationPermission) {
+                        centerOnUserLocation()
+                    } else {
+                        locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                    }
                 },
                 containerColor = Color.White,
                 contentColor = Color(0xFF007A3D)

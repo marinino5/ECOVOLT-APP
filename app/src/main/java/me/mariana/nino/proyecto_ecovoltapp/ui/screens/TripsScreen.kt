@@ -26,6 +26,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -69,6 +71,15 @@ fun TripsScreen(
     val textDark = Color(0xFF1D1D1F)
     val textGray = Color(0xFF6E6E73)
     val borderSoft = Color(0xFFE3E8E5)
+
+    val currentUserId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+
+    DisposableEffect(currentUserId) {
+        TripRepository.observeTrips(currentUserId)
+        onDispose {
+            TripRepository.stopObserving()
+        }
+    }
 
     val trips = TripRepository.trips
     val scheduledTrips = trips.filter { it.status == TripStatus.PROGRAMADO }
